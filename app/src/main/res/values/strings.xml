@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Product</string>
+
+    <string name="click_me">按我</string>
+    <string name="hello_world">Hello World.</string>
+
+    <string name="purchase">購買</string>
+    <string name="price">$%d</string>
+</resources>
