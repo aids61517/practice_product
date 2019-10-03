@@ -3,6 +3,7 @@ package com.pinkoi.product
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,10 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.pinkoi.product.data.Product
+import kotlinx.android.synthetic.main.activity_product_item.view.nameText
+import kotlinx.android.synthetic.main.activity_product_item.view.productImage
+import kotlinx.android.synthetic.main.activity_product_text_item.view.productNameText
 
 class ProductActivity : AppCompatActivity() {
   private val productImage: ImageView by lazy {
-    findViewById<ImageView>(R.id.product_image)
+    findViewById<ImageView>(R.id.productImage)
   }
   private val favImage: ImageView by lazy {
     findViewById<ImageView>(R.id.fav_image)
@@ -82,7 +86,13 @@ class ProductActivity : AppCompatActivity() {
 
 private class ProductAdapter(
   private val context: Context
-): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+  companion object {
+    const val TYPE_IMAGE = 1
+    const val TYPE_TEXT = 2
+  }
+
   private var productList: List<Product> = emptyList()
 
   fun setData(productList: List<Product>) {
@@ -91,10 +101,15 @@ private class ProductAdapter(
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    val productItemView = LayoutInflater.from(context).run {
-      inflate(R.layout.activity_product_item, parent, false)
+    Log.d("ProductAdapter", "onCreateViewHolder viewType $viewType")
+    val inflater = LayoutInflater.from(context)
+    return if (viewType == TYPE_IMAGE) {
+      val productItemView = inflater.inflate(R.layout.activity_product_item, parent, false)
+      ProductItemViewHolder(productItemView)
+    } else {
+      val productItemView = inflater.inflate(R.layout.activity_product_text_item, parent, false)
+      ProductItemTextViewHolder(productItemView)
     }
-    return ProductItemViewHolder(productItemView)
   }
 
   override fun getItemCount(): Int {
@@ -102,8 +117,9 @@ private class ProductAdapter(
   }
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    Log.d("ProductAdapter", "onBindViewHolder position = $position, holder = $holder")
+    val product = productList[position]
     if (holder is ProductItemViewHolder) {
-      val product = productList[position]
       holder.nameText.apply {
         text = product.name
       }
@@ -111,13 +127,31 @@ private class ProductAdapter(
       holder.productImage.apply {
         setImageResource(product.imageId)
       }
+    } else if (holder is ProductItemTextViewHolder) {
+      holder.nameText.apply {
+        text = product.name
+      }
+    }
+  }
+
+  override fun getItemViewType(position: Int): Int {
+    return if (position % 2 == 0) {
+      TYPE_IMAGE
+    } else {
+      TYPE_TEXT
     }
   }
 
   class ProductItemViewHolder(
     itemView: View
-  ): RecyclerView.ViewHolder(itemView) {
-    val productImage: ImageView = itemView.findViewById(R.id.product_image)
-    val nameText: TextView = itemView.findViewById(R.id.product_name_text)
+  ) : RecyclerView.ViewHolder(itemView) {
+    val productImage: ImageView = itemView.productImage
+    val nameText: TextView = itemView.nameText
+  }
+
+  class ProductItemTextViewHolder(
+    itemView: View
+  ) : RecyclerView.ViewHolder(itemView) {
+    val nameText: TextView = itemView.productNameText
   }
 }

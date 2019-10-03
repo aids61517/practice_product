@@ -6,24 +6,13 @@
     android:layout_height="wrap_content"
     tools:context=".ProductActivity">
 
-    <ImageView
-        android:id="@+id/productImage"
+    <TextView
+        android:id="@+id/productNameText"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:padding="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/product_3" />
-
-    <TextView
-        android:id="@+id/nameText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
-        app:layout_constraintStart_toStartOf="@+id/productImage"
-        app:layout_constraintEnd_toEndOf="@+id/productImage"
-        app:layout_constraintTop_toBottomOf="@+id/productImage"
         tools:text="Pinkoiasdasdasdasdasd" />
 </androidx.constraintlayout.widget.ConstraintLayout>
