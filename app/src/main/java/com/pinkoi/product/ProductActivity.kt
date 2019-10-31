@@ -12,10 +12,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.google.gson.Gson
+import com.pinkoi.product.data.ApiResult
 import com.pinkoi.product.data.Product
 import kotlinx.android.synthetic.main.activity_product_item.view.nameText
 import kotlinx.android.synthetic.main.activity_product_item.view.productImage
 import kotlinx.android.synthetic.main.activity_product_text_item.view.productNameText
+import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.lang.Runnable
 
 class ProductActivity : AppCompatActivity() {
   private val productImage: ImageView by lazy {
@@ -34,6 +40,7 @@ class ProductActivity : AppCompatActivity() {
     findViewById<RecyclerView>(R.id.recycler_view)
   }
   private var isFav: Boolean = false
+  private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -66,21 +73,55 @@ class ProductActivity : AppCompatActivity() {
       adapter = ProductAdapter(context)
     }
 
-    val productList = mutableListOf<Product>().apply {
-      add(Product("1", 100, R.drawable.product_1))
-      add(Product("2", 200, R.drawable.product_2))
-      add(Product("3", 300, R.drawable.product_3))
-      add(Product("1", 100, R.drawable.product_1))
-      add(Product("2", 200, R.drawable.product_2))
-      add(Product("3", 300, R.drawable.product_3))
-      add(Product("1", 100, R.drawable.product_1))
-      add(Product("2", 200, R.drawable.product_2))
-      add(Product("3", 300, R.drawable.product_3))
-      add(Product("1", 100, R.drawable.product_1))
-      add(Product("2", 200, R.drawable.product_2))
-      add(Product("3", 300, R.drawable.product_3))
+    coroutineScope.launch {
+//      val apiResult = withContext(Dispatchers.IO) {
+//        val client = OkHttpClient()
+//        val request = Request.Builder()
+//          .url("https://course.aids61517.tw/product.php")
+//          .build()
+//
+//        val response = client.newCall(request).execute()
+//        val result = response.body?.string()!!
+//        Log.d("ProductActivity", "response = $result")
+//        Gson().fromJson(result, ApiResult::class.java)
+//      }
+
+
+      val apiResultDeferred1 = coroutineScope.async(Dispatchers.IO) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+          .url("https://course.aids61517.tw/product.php")
+          .build()
+
+        val response = client.newCall(request).execute()
+        val result = response.body?.string()!!
+        Log.d("ProductActivity", "response = $result")
+        Gson().fromJson(result, ApiResult::class.java)
+      }
+      val apiResultDeferred2 = coroutineScope.async(Dispatchers.IO) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+          .url("https://course.aids61517.tw/product.php")
+          .build()
+
+        val response = client.newCall(request).execute()
+        val result = response.body?.string()!!
+        Log.d("ProductActivity", "response = $result")
+        Gson().fromJson(result, ApiResult::class.java)
+      }
+
+      val apiResult = apiResultDeferred1.await()
+      val apiResult2 = apiResultDeferred2.await()
+
+
+      // update ui
+      (recyclerView.adapter as? ProductAdapter)?.setData(apiResult.result)
     }
-    (recyclerView.adapter as? ProductAdapter)?.setData(productList)
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    coroutineScope.cancel()
   }
 }
 
